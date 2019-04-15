@@ -1,0 +1,40 @@
+<html>
+
+<head>
+    <title>Phone book</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Phone Book</h1>
+    <div>
+        <input type="text" placeholder="Search!"><button>Search</button>
+    </div>
+
+
+    <table id="agenda" border="1">
+        <thead id="head">
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Phone</th>
+            <tr>
+        </thead>
+
+        <tbody>
+           
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td><input type="text" name="firstName" placeholder="First name" required></td>
+                <td><input type="text" name="lastName" placeholder="Last name" required></td>
+                <td><input type="text" name="phone" placeholder="Phone" required></td>
+                <td><button type="submit" onclick="savePerson()">Save</button></td>
+            </tr>
+        </tfoot>
+    </table>
+    <script src="javascripts/agenda.js"></script>
+</body>
+
+</html>

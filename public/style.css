@@ -1,0 +1,15 @@
+#agenda{
+    width: 100%;
+}
+
+#agenda td{
+    padding: 5px;
+}
+
+#head {
+    background: blue;
+}
+
+#agenda input{
+    width: 100%;
+}
