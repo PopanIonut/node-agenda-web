@@ -1,17 +1,24 @@
 var allPersons = [];
+var editPersonId;
 
 var API_URL = {
+    CREATE: '...',
+    READ: '...',
+
     //ADD: 'data/add.json'
-    ADD: 'users/add',
+    ADD: 'users/add', //TO DO use CREATE
+    UPDATE: 'users/update',
     DELETE: 'users/delete'
 };
 
 var API_METHOD = {
+    CREATE: 'POST',
+    READ: 'GET',
     //ADD: 'GET'
-    ADD: 'POST',
+    ADD: 'POST', //TO DO use CREATE
+    UPDATE: 'PUT',
     DELETE: 'DELETE'
 };
-
 
 fetch('data/persons.json').then(function (r) {
     return r.json();
@@ -41,31 +48,64 @@ function savePerson() {
     var lastName = document.querySelector('[name=lastName]').value;
     var phone = document.querySelector('[name=phone]').value;
 
-    submitNewPerson(firstName, lastName, phone);
-
+    // daca gaseste persoana o editeaza
+    if (editPersonId) {
+        submitEditPerson(editPersonId, firstName, lastName, phone);
+    } else {
+        submitNewPerson(firstName, lastName, phone);
+    }
 }
 
-function submitNewPerson(firstName, lastName, phone) {
-    console.warn('savePerson', firstName, lastName, phone);
+function submitEditPerson(id, firstName, lastName, phone) {
     var body = null;
-    if (API_METHOD.ADD === 'POST') {
+    const method = API_METHOD.UPDATE;
+    if (method === 'PUT') {
         body = JSON.stringify({
-            firstName: firstName,
-            lastName: lastName,
-            phone: phone
+            id,
+            firstName,
+            lastName,
+            phone
         });
     }
 
-
-    fetch(API_URL.ADD, {
-        method: API_METHOD.ADD,
-        body: body,
+    fetch(API_URL.UPDATE, {
+        method,
+        body,
         headers: {
             "Content-Type": "application/json"
         }
     }).then(function (r) {
         return r.json();
-    }).then(function(status) {
+    }).then(function (status) {
+        if (status.success) {
+            inlineEditPerson(id, firstName, lastName, phone);
+        } else {
+            console.warn('not saved', status)
+        }
+    })
+}
+
+function submitNewPerson(firstName, lastName, phone) {
+    console.warn('savePerson', firstName, lastName, phone);
+    var body = null;
+    const method = API_METHOD.ADD;
+    if (method === 'POST') {
+        body = JSON.stringify({
+            firstName,
+            lastName,
+            phone
+        });
+    }
+
+    fetch(API_URL.ADD, {
+        method,
+        body,
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then(function (r) {
+        return r.json();
+    }).then(function (status) {
         if (status.success) {
             inlineAddPerson(status.id, firstName, lastName, phone);
         } else {
@@ -84,15 +124,32 @@ function inlineAddPerson(id, firstName, lastName, phone) {
     display(allPersons);
 }
 
+function inlineEditPerson(id, firstName, lastName, phone) {
+    //windows.location.reload();
+    const person = allPersons.find((p) => {
+        return p.id == id;
+    });
+    person.firstName = firstName;
+    person.lastName = lastName;
+    person.phone = phone;
+
+    display(allPersons);
+
+    editPersonId = '';
+    document.querySelector('[name=firstName]').value = '';
+    document.querySelector('[name=lastName]').value = '';
+    document.querySelector('[name=phone]').value = '';
+}
+
 function inlineDeletePerson(id) {
-    console.warn ('refresh',id);
-    allPersons = allPersons.filter(function(person){
+    console.warn('refresh', id);
+    allPersons = allPersons.filter(function (person) {
         return person.id != id;
     });
     display(allPersons);
 }
 
-function deletePerson(id){
+function deletePerson(id) {
     var body = null;
     if (API_METHOD.DELETE === 'DELETE') {
         body = JSON.stringify({ id });
@@ -106,7 +163,7 @@ function deletePerson(id){
         }
     }).then(function (r) {
         return r.json();
-    }).then(function(status) {
+    }).then(function (status) {
         if (status.success) {
             inlineDeletePerson(status.id);
         } else {
@@ -114,15 +171,36 @@ function deletePerson(id){
         }
     })
 }
-function initEvents(){
+
+const editPerson = function (id) {
+    var person = allPersons.find(function (p) {
+        //  console.info('?', p.firstName);
+        return p.id == id
+    });
+    // console.warn('persoana', person);
+    document.querySelector('[name=firstName]').value = person.firstName;
+    document.querySelector('[name=lastName]').value = person.lastName;
+    document.querySelector('[name=phone]').value = person.phone;
+    editPersonId = id;
+
+}
+
+function initEvents() {
     const tbody = document.querySelector('#agenda tbody');
-    tbody.addEventListener('click', function(e) {
+    tbody.addEventListener('click', function (e) {
         if (e.target.className == 'delete') {
             const tr = e.target.parentNode.parentNode;
             const id = tr.getAttribute('data-id');
             deletePerson(id);
         }
+        else if (e.target.className == 'edit') {
+            const tr = e.target.parentNode.parentNode;
+            const id = tr.getAttribute('data-id');
+            editPerson(id);
+        }
+
     });
 }
 
 initEvents();
+
