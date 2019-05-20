@@ -23,7 +23,7 @@ var API_METHOD = {
 fetch('data/persons.json').then(function (r) {
     return r.json();
 }).then(function (persons) {
-    console.log('all persons', persons);
+   // console.log('all persons', persons);
     allPersons = persons;
     display(persons);
 });
@@ -80,7 +80,7 @@ function submitEditPerson(id, firstName, lastName, phone) {
         if (status.success) {
             inlineEditPerson(id, firstName, lastName, phone);
         } else {
-            console.warn('not saved', status)
+          //  console.warn('not saved', status)
         }
     })
 }
@@ -142,7 +142,7 @@ function inlineEditPerson(id, firstName, lastName, phone) {
 }
 
 function inlineDeletePerson(id) {
-    console.warn('refresh', id);
+ //   console.warn('refresh', id);
     allPersons = allPersons.filter(function (person) {
         return person.id != id;
     });
@@ -184,6 +184,19 @@ const editPerson = function (id) {
     editPersonId = id;
 
 }
+//if one parameter can skipp pharantesis
+//("value") will be "value"
+//trim - putem da search si cu spatiu
+
+const search = value => {
+    value = value.toLowerCase().trim();
+    const filtered = allPersons.filter(person => {
+        return person.firstName.toLowerCase().includes(value) ||
+               person.lastName.toLowerCase().includes(value) ||
+               person.phone.toLowerCase().includes(value)  
+    });
+    display(filtered);
+};
 
 function initEvents() {
     const tbody = document.querySelector('#agenda tbody');
@@ -200,6 +213,12 @@ function initEvents() {
         }
 
     });
+
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', (e) => {
+        search(e.target.value);
+    }); 
+
 }
 
 initEvents();
